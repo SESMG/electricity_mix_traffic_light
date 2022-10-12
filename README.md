@@ -19,6 +19,10 @@ main_app(token='xxxxx', # An entsoe-py API token is required, which can be freel
 
 ```
 
+### Result
+
+![Result Output](/images/output.png)
+
 ## Help Wanted!
 
 We would like to host the electricity mix traffic light live as a web service. Feel free to contact us if you would like to contribute.
