@@ -19,7 +19,7 @@ main_app(token='xxxxx', # An entsoe-py API token is required, which can be freel
 
 ```
 
-### Result
+## Result
 
 ![Result Output](/images/output.png)
 
