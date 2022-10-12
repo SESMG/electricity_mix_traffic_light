@@ -16,7 +16,6 @@ main_app(token='xxxxx', # An entsoe-py API token is required, which can be freel
              days_in_past=5, # number of past days to be considered to calculate the quantiles
              days_in_future=5 # number of future days to be considered to calculate the quantiles
              )
-
 ```
 
 ## Result
