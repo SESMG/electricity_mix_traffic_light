@@ -10,12 +10,12 @@ For the current electricity mix, the current share of renewable energies and the
 ## How To
 ```
 main_app(token='xxxxx', # An entsoe-py API token is required, which can be freely requested
-             country_code='DE', # Controle area to be investigated, e.g. 'DE' for Germany
-             no_of_quantiles=4, # Number of quantiles to be calculated
-             color_scheme=['RED', 'ORANGE', 'YELLOW', 'GREEN'], # Status Attribute for every quantile
-             days_in_past=5, # number of past days to be considered to calculate the quantiles
-             days_in_future=5 # number of future days to be considered to calculate the quantiles
-             )
+         country_code='DE', # Controle area to be investigated, e.g. 'DE' for Germany
+         no_of_quantiles=4, # Number of quantiles to be calculated
+         color_scheme=['RED', 'ORANGE', 'YELLOW', 'GREEN'], # Status Attribute for every quantile
+         days_in_past=5, # number of past days to be considered to calculate the quantiles
+         days_in_future=5 # number of future days to be considered to calculate the quantiles
+         )
 ```
 
 ## Result
