@@ -8,6 +8,9 @@ Forecast values from the [entsoe-py](https://github.com/EnergieID/entsoe-py) pla
 For the current electricity mix, the current share of renewable energies and the status attribute are returned.
 
 ## How To
+
+Python 3.10 is required.
+
 ```
 main_app(token='xxxxx', # An entsoe-py API token is required, which can be freely requested
          country_code='DE', # Controle area to be investigated, e.g. 'DE' for Germany
