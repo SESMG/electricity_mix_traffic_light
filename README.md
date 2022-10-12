@@ -1,5 +1,8 @@
 # Electricity Mix Traffic Light
 
+The returned status is intended to raise awareness about the current electricity mix. Based on this, people can consciously switch shiftable loads (such as washing machines or dishwashers) at times with a high renewable share. This conserves grid capacity and avoids the use of fossil fuels to generate electricity.
+
+
 ## Description
 With the help of this program, the current electricity mix of a European control area (freely selectable by the user) is evaluated and categorized with regard to the share of renewable energies (offshore wind, onshore wind, solar) - for example in a traffic light color scheme.
 
