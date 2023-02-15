@@ -2,6 +2,7 @@ from entsoe import EntsoePandasClient
 import pandas as pd
 from datetime import date, timedelta, datetime
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def download_load_data(country_code, start, end):
@@ -26,17 +27,18 @@ def calculate_share_of_renewables(pd_demand, pd_wind_solar_load, index=0, print_
     share_of_renewables = wind_solar_load / demand
 
     if print_value is True:
-        print('Net Load: ' + str(pd_demand['Forecasted Load'][index]))
-        print('Solar: ' + str(pd_wind_solar_load['Solar'][index]))
+        print('Net Load: ' + str(pd_demand['Forecasted Load'][index]) + ' MW')
+        print('Solar: ' + str(pd_wind_solar_load['Solar'][index]) + ' MW')
         if 'Wind Offshore' in pd_wind_solar_load.columns.values:
-            print('Wind Offshore: ' + str(pd_wind_solar_load['Wind Offshore'][index]))
-        print('Wind Onshore: ' + str(pd_wind_solar_load['Wind Onshore'][index]))
+            print('Wind Offshore: ' + str(pd_wind_solar_load['Wind Offshore'][index]) + ' MW')
+        print('Wind Onshore: ' + str(pd_wind_solar_load['Wind Onshore'][index]) + ' MW')
 
     return share_of_renewables
 
 def calculate_current_share_of_renewables(country_code):
     # Extract Timestamps
     timestamp_now = datetime.now()  # .strftime("%Y%m%d%H%M")
+    print(timestamp_now)
     timestamp_near_future = (datetime.now() + timedelta(minutes=15))  # .strftime("%Y%m%d%H%M")
 
     #Calculate the current share of renewables
@@ -48,16 +50,28 @@ def calculate_current_share_of_renewables(country_code):
 
     return current_share_of_renewables
 
-def calculate_share_of_renewable_quantiles(country_code, no_of_quantiles=3, days_in_past=5, days_in_future=5):
+def calculate_share_of_renewable_quantiles(country_code, no_of_quantiles, days_in_past, days_in_future, today_mode):
     # Downloads data
-    pd_demand, pd_wind_solar_load = download_load_data(country_code=country_code,
+    if today_mode==True:
+        pd_demand, pd_wind_solar_load = download_load_data(country_code=country_code,
+                                                           start=date.today(),
+                                                           end=date.today() + timedelta(days=1))
+    elif today_mode==False:
+        pd_demand, pd_wind_solar_load = download_load_data(country_code=country_code,
                                                        start=datetime.now() - timedelta(days=days_in_past),
                                                        end=datetime.now() + timedelta(days=days_in_future))
     # Calculates share of renewables for every timestep
     list_of_renewables = []
+    renewables_dict = {}
+
     for i in range(len(pd_wind_solar_load['Wind Onshore'])):
         share_of_renewables = calculate_share_of_renewables(pd_demand, pd_wind_solar_load, index=i)
         list_of_renewables.append(share_of_renewables)
+        renewables_dict[pd_demand.index[i]] = share_of_renewables
+
+    renewables_df = pd.DataFrame(renewables_dict.values(),index=renewables_dict.keys())
+    print(renewables_df)
+    # print(list_of_renewables)
 
     # Calculates quantiles
     quantiles = []
@@ -65,7 +79,7 @@ def calculate_share_of_renewable_quantiles(country_code, no_of_quantiles=3, days
         grenze = 100/no_of_quantiles*(i+1)
         quantiles.append(np.percentile(np.array(list_of_renewables), int(grenze)))
 
-    return quantiles
+    return quantiles, renewables_df
 
 def calculate_traffic_light_color(current_share_of_renewables, quantiles, color_scheme):
     for i in range(len(quantiles)):
@@ -77,13 +91,25 @@ def calculate_traffic_light_color(current_share_of_renewables, quantiles, color_
 
     return color
 
+def print_graph(df, quantiles):
+    # ax = plt.gca()
+    # df.plot(kind='line', x='0', y=index, ax=ax)
+    plt.plot(df.index, df[0])
+    for quantil in quantiles:
+        plt.axhline(y=quantil, color="black")
+
+    plt.axvline(x=datetime.now(),color="gray")
+
+    plt.show()
 
 def main_app(token='xxx',
              country_code='DE',
              no_of_quantiles=4,
              color_scheme=['RED', 'ORANGE', 'YELLOW', 'GREEN'],
              days_in_past=5,
-             days_in_future=5):
+             days_in_future=5,
+             today_mode=True,
+             plotting=True):
 
     global client
     client = EntsoePandasClient(api_key=token)
@@ -91,20 +117,21 @@ def main_app(token='xxx',
     ##############################
     #### PARAMETER DEFINITION ####
     ##############################
-    country_code = 'DE'  # Germany
-    no_of_quantiles=4
-    color_scheme = ['RED', 'ORANGE', 'YELLOW', 'GREEN']
-    days_in_past=5
-    days_in_future=5
+    # country_code = 'DE'  # Germany
+    # no_of_quantiles=4
+    # color_scheme = ['RED', 'ORANGE', 'YELLOW', 'GREEN']
+    # days_in_past=5
+    # days_in_future=5
     ##############################
     ##############################
 
     # Calculate the current share of renewables
     current_share_of_renewables = calculate_current_share_of_renewables(country_code)
     # Calculate quantiles of past and future
-    quantiles = calculate_share_of_renewable_quantiles(country_code, no_of_quantiles,
+    quantiles, renewables_df = calculate_share_of_renewable_quantiles(country_code, no_of_quantiles,
                                                        days_in_past,
-                                                       days_in_future)
+                                                       days_in_future,
+                                                       today_mode=today_mode)
     # Calculate current traffic light color
     color = calculate_traffic_light_color(current_share_of_renewables,quantiles,color_scheme)
 
@@ -115,12 +142,17 @@ def main_app(token='xxx',
     print('AKTUELLER AMPELSTATUS: '+color)
     print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
 
+    if plotting == True:
+        print_graph(df=renewables_df, quantiles=quantiles)
+
     return current_share_of_renewables, color
 
-main_app(token='xxx', # insert api token!
+main_app(token='xxx',
              country_code='DE',
-             no_of_quantiles=4,
-             color_scheme=['RED', 'ORANGE', 'YELLOW', 'GREEN'],
-             days_in_past=5,
-             days_in_future=5)
+             no_of_quantiles=3,
+             color_scheme=['RED', 'YELLOW', 'GREEN'],
+             days_in_past=1,
+             days_in_future=1,
+             today_mode=True,
+             plotting=True)
 
