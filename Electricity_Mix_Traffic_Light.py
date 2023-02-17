@@ -84,10 +84,9 @@ def calculate_share_of_renewable_quantiles(country_code, no_of_quantiles, days_i
     renewables_df = pd.DataFrame(renewables_dict.values(),index=renewables_dict.keys())
 
     pd.options.display.max_rows = 100
-    print(datetime.utcnow())
-    print(renewables_df)
 
     if format == 'text':
+        print(datetime.utcnow())
         print(renewables_df)
     elif format == 'json':
         print('"history": [')
