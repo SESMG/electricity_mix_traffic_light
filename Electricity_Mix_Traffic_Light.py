@@ -8,8 +8,8 @@ import argparse
 
 def download_load_data(country_code, start, end):
     # Convert Time Stamp
-    start_timestamp = pd.Timestamp(start, tz='Europe/Brussels')
-    end_timestamp = pd.Timestamp(end, tz='Europe/Brussels')
+    start_timestamp = pd.Timestamp(start, tz='UTC')
+    end_timestamp = pd.Timestamp(end, tz='UTC')
 
     # Extract load
     pd_demand = client.query_load_forecast(country_code, start=start_timestamp, end=end_timestamp)
@@ -46,12 +46,12 @@ def calculate_share_of_renewables(pd_demand, pd_wind_solar_load, index=0, print_
 
 def calculate_current_share_of_renewables(country_code, format):
     # Extract Timestamps
-    timestamp_now = datetime.utcnow()  # .strftime("%Y%m%d%H%M")
+    timestamp_now = (datetime.utcnow() - timedelta(minutes=14))
     if format == 'text':
         print(timestamp_now)
     elif format == 'json':
         print('"timestamp_now": "' + str(timestamp_now.isoformat()) + '", ')
-    timestamp_near_future = (datetime.utcnow() + timedelta(minutes=15))  # .strftime("%Y%m%d%H%M")
+    timestamp_near_future = (datetime.utcnow() + timedelta(minutes=1))
 
     #Calculate the current share of renewables
     pd_demand, pd_wind_solar_load = download_load_data(country_code=country_code,
@@ -82,6 +82,10 @@ def calculate_share_of_renewable_quantiles(country_code, no_of_quantiles, days_i
         renewables_dict[pd_demand.index[i]] = share_of_renewables
 
     renewables_df = pd.DataFrame(renewables_dict.values(),index=renewables_dict.keys())
+
+    pd.options.display.max_rows = 100
+    print(datetime.utcnow())
+    print(renewables_df)
 
     if format == 'text':
         print(renewables_df)
