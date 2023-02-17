@@ -46,12 +46,12 @@ def calculate_share_of_renewables(pd_demand, pd_wind_solar_load, index=0, print_
 
 def calculate_current_share_of_renewables(country_code, format):
     # Extract Timestamps
-    timestamp_now = datetime.now()  # .strftime("%Y%m%d%H%M")
+    timestamp_now = datetime.utcnow()  # .strftime("%Y%m%d%H%M")
     if format == 'text':
         print(timestamp_now)
     elif format == 'json':
         print('"timestamp_now": "' + str(timestamp_now.isoformat()) + '", ')
-    timestamp_near_future = (datetime.now() + timedelta(minutes=15))  # .strftime("%Y%m%d%H%M")
+    timestamp_near_future = (datetime.utcnow() + timedelta(minutes=15))  # .strftime("%Y%m%d%H%M")
 
     #Calculate the current share of renewables
     pd_demand, pd_wind_solar_load = download_load_data(country_code=country_code,
@@ -70,8 +70,8 @@ def calculate_share_of_renewable_quantiles(country_code, no_of_quantiles, days_i
                                                            end=date.today() + timedelta(days=1))
     elif today_mode==False:
         pd_demand, pd_wind_solar_load = download_load_data(country_code=country_code,
-                                                       start=datetime.now() - timedelta(days=days_in_past),
-                                                       end=datetime.now() + timedelta(days=days_in_future))
+                                                       start=datetime.utcnow() - timedelta(days=days_in_past),
+                                                       end=datetime.utcnow() + timedelta(days=days_in_future))
     # Calculates share of renewables for every timestep
     list_of_renewables = []
     renewables_dict = {}
@@ -125,7 +125,7 @@ def print_graph(df, quantiles):
     for quantil in quantiles:
         plt.axhline(y=quantil, color="black")
 
-    plt.axvline(x=datetime.now(),color="gray")
+    plt.axvline(x=datetime.utcnow(),color="gray")
 
     plt.show()
 
